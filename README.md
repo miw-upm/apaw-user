@@ -30,7 +30,7 @@ La seguridad esta basada en OAuth2 y OpenId Connect, desarrollando ambos proceso
 ### :gear: Ejecución en local con Docker
 * Crear la red, solo una vez:
 ```sh
-docker network create devopsNet
+docker network create apawnet
 ```
 * Ver redes:
 ```sh
