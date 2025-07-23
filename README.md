@@ -5,7 +5,6 @@
 
 Es un ejemplo de un API Rest completo, basado en Spring Boot, con una arquitectura de tres capas, y almacenamiento en
 bases de datos con JPA soportado por Hibernate y Postgres.
-La seguridad esta basada en OAuth2 y OpenId Connect, desarrollando ambos procesos en el API
 
 ## Tecnologías necesarias
 `Java` `Maven` `GitHub` `GitHub Actions` `Sonarcloud` `Slack` `Spring-Boot` `GitHub Packages` `OpenAPI` `JPA` `PostgreSQL` `Docker` 

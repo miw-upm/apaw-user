@@ -26,5 +26,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             """)
     List<User> findByMobileAndFirstNameAndFamilyNameNullSafe(
             String mobile, String firstName, String familyName);
-
 }
