@@ -8,11 +8,9 @@ import es.upm.api.services.exceptions.ConflictException;
 import es.upm.api.services.exceptions.NotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;

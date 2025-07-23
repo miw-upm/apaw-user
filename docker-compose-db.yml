@@ -7,13 +7,13 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: devops
+      POSTGRES_DB: apawuserdb
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - goa
+      - apawnet
 
   mongo:
     image: mongodb/mongodb-community-server:7.0.16-ubuntu2204
@@ -22,18 +22,16 @@ services:
     environment:
       MONGODB_INITDB_ROOT_USERNAME: mongo
       MONGODB_INITDB_ROOT_PASSWORD: mongo
-      MONGODB_INITDB_DATABASE: devops
+      MONGODB_INITDB_DATABASE: apawdb
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
       - mongo_config:/data/configdb
     networks:
-      - goa
+      - apawnet
 
 volumes:
-  mysql_data:
-    name: "mysql-data"
   postgres_data:
     name: "postgres-data"
   mongo_data:
@@ -42,7 +40,7 @@ volumes:
     name: "mongo-config"
 
 networks:
-  goa:
+  apawnet:
     external: true
 
 # Construir todas las BD
@@ -62,7 +60,7 @@ networks:
 #  delete from <table>;
 
 # CONSOLA & COMANDOS mongo
-#> docker exec -it mongo-server mongosh "mongodb://mongo:mongo@localhost:27017/devops?authSource=admin"
+#> docker exec -it mongo-server mongosh "mongodb://mongo:mongo@localhost:27017/apawdb?authSource=admin"
 #  help
 #  db.version()
 #  db.stats()
