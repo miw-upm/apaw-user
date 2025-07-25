@@ -40,23 +40,23 @@ class UserResourceFT {
         ResponseEntity<UserDto> response = restTemplate.getForEntity(url, UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMobile()).isEqualTo("6");
-        assertThat(response.getBody().getFirstName()).isEqualTo("admin");
+        assertThat(response.getBody().getMobile()).isEqualTo("666000660");
+        assertThat(response.getBody().getFirstName()).isEqualTo("user0");
     }
 
     @Test
     void testReadByMobile() {
-        String url = this.baseUrl + MOBILE + MOBILE_ID.replace("{mobile}", "66");
+        String url = this.baseUrl + MOBILE + MOBILE_ID.replace("{mobile}", "666000661");
         ResponseEntity<UserDto> response = restTemplate.getForEntity(url, UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMobile()).isEqualTo("66");
-        assertThat(response.getBody().getFirstName()).isEqualTo("customer");
+        assertThat(response.getBody().getMobile()).isEqualTo("666000661");
+        assertThat(response.getBody().getFirstName()).isEqualTo("user1");
     }
 
     @Test
     void testUpdateByMobile() {
-        String url = this.baseUrl + MOBILE + MOBILE_ID.replace("{mobile}", "666666001");
+        String url = this.baseUrl + MOBILE + MOBILE_ID.replace("{mobile}", "666000660");
         UserDto userDto = restTemplate.getForEntity(url, UserDto.class).getBody();
         assertThat(userDto).isNotNull();
         String oldName = userDto.getFirstName();
@@ -80,7 +80,7 @@ class UserResourceFT {
 
     @Test
     void testCreateConflictWithMobile() {
-        UserDto userDto = UserDto.builder().mobile("666666001").firstName("daemon").build();
+        UserDto userDto = UserDto.builder().mobile("666000660").firstName("daemon").build();
         HttpEntity<UserDto> request = new HttpEntity<>(userDto, this.headers);
         ResponseEntity<UserDto> response = restTemplate.exchange(this.baseUrl, HttpMethod.POST, request, UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -96,7 +96,7 @@ class UserResourceFT {
 
     @Test
     void testCreateConflictWithEmail() {
-        UserDto userDto = UserDto.builder().mobile("666666666").firstName("daemon").email("c2@gmail.com").build();
+        UserDto userDto = UserDto.builder().mobile("666666666").firstName("daemon").email("user0@gmail.com").build();
         HttpEntity<UserDto> request = new HttpEntity<>(userDto, this.headers);
         ResponseEntity<UserDto> response = restTemplate.exchange(this.baseUrl, HttpMethod.POST, request, UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -104,7 +104,7 @@ class UserResourceFT {
 
     @Test
     void testCreateConflictWithIdentity() {
-        UserDto userDto = UserDto.builder().mobile("666666666").firstName("daemon").identity("66666604T").build();
+        UserDto userDto = UserDto.builder().mobile("666666666").firstName("daemon").identity("66666600D").build();
         HttpEntity<UserDto> request = new HttpEntity<>(userDto, this.headers);
         ResponseEntity<UserDto> response = restTemplate.exchange(this.baseUrl, HttpMethod.POST, request, UserDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -128,7 +128,7 @@ class UserResourceFT {
 
     @Test
     void testFind() {
-        ResponseEntity<UserDto[]> response = restTemplate.getForEntity(baseUrl + "?mobile=666666001", UserDto[].class);
+        ResponseEntity<UserDto[]> response = restTemplate.getForEntity(baseUrl + "?mobile=666000660", UserDto[].class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotEmpty();
@@ -139,7 +139,7 @@ class UserResourceFT {
 
     @Test
     void testFindWithProjection() {
-        String url = baseUrl + "?projection=true&mobile=666666001";
+        String url = baseUrl + "?projection=true&mobile=666000660";
         ResponseEntity<UserDto[]> response = restTemplate.getForEntity(url, UserDto[].class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();

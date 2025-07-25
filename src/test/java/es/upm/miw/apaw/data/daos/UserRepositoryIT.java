@@ -16,14 +16,14 @@ class UserRepositoryIT {
 
     @Test
     void testFindByMobile() {
-        assertThat(this.userRepository.findByMobile("6")).isPresent();
+        assertThat(this.userRepository.findByMobile("666000660")).isPresent();
     }
 
     @Test
     void testFindByMobileAndFirstNameAndFamilyName() {
         assertThat(this.userRepository.findByMobileAndFirstNameAndFamilyNameNullSafe(
                 "1", null, null))
-                .anyMatch(user -> "666666001" .equals(user.getMobile()));
+                .anyMatch(user -> "666000661" .equals(user.getMobile()));
     }
 
 }

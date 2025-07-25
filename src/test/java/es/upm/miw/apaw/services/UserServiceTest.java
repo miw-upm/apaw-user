@@ -21,27 +21,27 @@ class UserServiceTest {
 
     @Test
     void testCreateUserConflictByEmail() {
-        User userDto = User.builder().id(UUID.randomUUID()).mobile("000000002").firstName("k").email("c1@gmail.com").build();
+        User userDto = User.builder().id(UUID.randomUUID()).mobile("000000002").firstName("k").email("user0@gmail.com").build();
         assertThrows(ConflictException.class, () -> this.userService.create(userDto));
     }
 
     @Test
     void testCreateConflictByDni() {
-        User userDto = User.builder().id(UUID.randomUUID()).mobile("000000003").firstName("k").identity("66666604T").build();
+        User userDto = User.builder().id(UUID.randomUUID()).mobile("000000003").firstName("k").identity("66666600D").build();
         assertThrows(ConflictException.class, () -> this.userService.create(userDto));
     }
 
     @Test
     void testUpdateUser() {
-        User oldUser = userService.readByMobile("666666002");
+        User oldUser = userService.readByMobile("666000660");
         oldUser.setMobile("666666666");
-        this.userService.updateByMobile("666666002", oldUser);
+        this.userService.updateByMobile("666000660", oldUser);
         User user = userService.readByMobile("666666666");
         assertThat(user)
                 .isNotNull()
                 .extracting(User::getFirstName)
                 .isEqualTo(oldUser.getFirstName());
-        oldUser.setMobile("666666002");
+        oldUser.setMobile("666000660");
         this.userService.updateByMobile("666666666", oldUser);
     }
 

@@ -37,27 +37,33 @@ public class SeederForDev {
         log.warn("------- Initial Load from JAVA -----------");
         User[] users = {
                 User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000"))
-                        .mobile("6").firstName("admin").registrationDate(LocalDate.now()).active(true).build(),
+                        .mobile("666000660").firstName("user0")
+                        .documentType(DocumentType.DNI).identity("66666600D")
+                        .address("C/User, 0 - 0A").email("user0@gmail.com")
+                        .city("User0 City").province("User 0 Province").postalCode(28850)
+                        .registrationDate(LocalDate.now()).active(true).build(),
                 User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0001"))
-                        .mobile("61").firstName("manager").registrationDate(LocalDate.now()).active(true).build(),
+                        .mobile("666000661").firstName("user1").familyName("u1 family")
+                        .registrationDate(LocalDate.now()).active(true).build(),
                 User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0002"))
-                        .mobile("62").firstName("operator").registrationDate(LocalDate.now()).active(true).build(),
+                        .mobile("666000662").firstName("user2").familyName("u2 family")
+                        .documentType(DocumentType.DNI).identity("66666602D")
+                        .registrationDate(LocalDate.now()).active(true).build(),
+                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0003"))
+                        .mobile("666000663").firstName("user3").familyName("u3 family")
+                        .documentType(DocumentType.CIF).identity("C66666603")
+                        .address("C/User, 3 - 3A").email("user3@gmail.com")
+                        .city("User3 City").province("User 3 Province").postalCode(28830)
+                        .registrationDate(LocalDate.now()).active(true).build(),
                 User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0004"))
-                        .mobile("66").firstName("customer").familyName("family-c1")
-                        .documentType(DocumentType.DNI).identity("66666603E").address("C/TPV, 3").email("c1@gmail.com")
-                        .city("Madrid").province("Madrid").postalCode(28012)
+                        .mobile("666000664").firstName("user4").familyName("u4 family")
+                        .documentType(DocumentType.NIE).identity("N66666604N")
+                        .address("C/User, 4 - 4A").email("user4@gmail.com")
+                        .city("User4 City").province("User 4 Province").postalCode(41001)
                         .registrationDate(LocalDate.now()).active(true).build(),
                 User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0005"))
-                        .mobile("666666001").firstName("c2").familyName("family-c2")
-                        .documentType(DocumentType.DNI).identity("66666604T").address("C/TPV, 4").email("c2@gmail.com")
-                        .city("Sevilla").province("Sevilla").postalCode(41001)
-                        .registrationDate(LocalDate.now()).active(true).build(),
-                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0006"))
-                        .mobile("666666002").firstName("c3")
-                        .city("Cádiz").province("Cadiz").postalCode(11001)
-                        .registrationDate(LocalDate.now()).active(true).build(),
-                User.builder().id(UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeffff0007"))
-                        .mobile("666666003").firstName("admin3")
+                        .mobile("666666005").firstName("user5")
+                        .city("User5 City").province("User 5 Province").postalCode(11001)
                         .registrationDate(LocalDate.now()).active(true).build()
         };
         this.userRepository.saveAll(Arrays.asList(users));
