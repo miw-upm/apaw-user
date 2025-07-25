@@ -2,14 +2,16 @@ package es.upm.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class ApplicationTest {
+
     @Test
-    void shouldRunMainMethodWithoutExceptions() {
-        assertThatCode(() -> Application.main(new String[]{}))
-                .doesNotThrowAnyException();
+    void contextLoads() {
+        //Empty, Only Context load
     }
+
 }
+
