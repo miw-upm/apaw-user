@@ -1,4 +1,4 @@
-package es.upm.miw.apaw.resources.dtos.validations;
+package es.upm.miw.apaw.resources.dtos;
 
 public class Validations {
     public static final String NINE_DIGITS = "\\d{9}";

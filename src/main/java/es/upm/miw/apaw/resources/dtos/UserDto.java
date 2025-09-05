@@ -2,7 +2,6 @@ package es.upm.miw.apaw.resources.dtos;
 
 import es.upm.miw.apaw.data.entities.DocumentType;
 import es.upm.miw.apaw.data.entities.User;
-import es.upm.miw.apaw.resources.dtos.validations.Validations;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
