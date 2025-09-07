@@ -22,7 +22,7 @@ class SystemResourceFT {
     @Test
     void testReadBadge() {
         webTestClient.get()
-                .uri(SYSTEM + VERSION_BADGE)
+                .uri(VERSION_BADGE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
