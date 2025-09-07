@@ -23,7 +23,7 @@ class UserRepositoryIT {
     void testFindByMobileAndFirstNameAndFamilyName() {
         assertThat(this.userRepository.findByMobileAndFirstNameAndFamilyNameNullSafe(
                 "1", null, null))
-                .anyMatch(user -> "666000661" .equals(user.getMobile()));
+                .anyMatch(user -> "666000661".equals(user.getMobile()));
     }
 
 }

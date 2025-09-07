@@ -1,39 +1,45 @@
 package es.upm.miw.apaw.functionaltests;
 
-import es.upm.miw.apaw.resources.SystemResource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static es.upm.miw.apaw.resources.SystemResource.SYSTEM;
+import static es.upm.miw.apaw.resources.SystemResource.VERSION_BADGE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.OK;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("test")
 class SystemResourceFT {
+
     @Autowired
-    private TestRestTemplate restTemplate;
+    private WebTestClient webTestClient;
 
     @Test
     void testReadBadge() {
-        ResponseEntity<String> response = restTemplate.getForEntity(SystemResource.SYSTEM + SystemResource.VERSION_BADGE, String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(OK);
-        assertThat(response.getBody())
-                .isNotNull()
-                .startsWith("<svg");
+        webTestClient.get()
+                .uri(SYSTEM + VERSION_BADGE)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .value(body -> assertThat(body)
+                        .isNotNull()
+                        .startsWith("<svg"));
     }
 
     @Test
     void testReadInfo() {
-        ResponseEntity<String> response = restTemplate.getForEntity(SystemResource.SYSTEM, String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(OK);
-        assertThat(response.getBody())
-                .isNotNull()
-                .isNotEmpty();
+        webTestClient.get()
+                .uri(SYSTEM)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .value(body -> assertThat(body)
+                        .isNotNull()
+                        .isNotEmpty());
     }
 }
