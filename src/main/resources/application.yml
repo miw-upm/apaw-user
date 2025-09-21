@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: apaw-user
@@ -14,9 +17,6 @@ spring:
     default-property-inclusion: NON_NULL
   jpa:
     open-in-view: false
-
-server:
-  port: 8081
 
 info:
   app:
