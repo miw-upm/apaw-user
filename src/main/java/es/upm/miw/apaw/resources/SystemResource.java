@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-
 @RestController
 @RequestMapping(SystemResource.SYSTEM)
 public class SystemResource {
@@ -52,8 +50,8 @@ public class SystemResource {
     @GetMapping
     public String applicationInfo() {
         return """
-                {"version":"%s::%s::%s"} (%s)
-                """.formatted(this.artifact, this.version, this.build, LocalDateTime.now());
+                {"version":"%s::%s::%s"}  /swagger-ui.html
+                """.formatted(this.artifact, this.version, this.build);
     }
 
     @GetMapping(value = VERSION_BADGE, produces = {"image/svg+xml"})
