@@ -24,7 +24,7 @@ class UserResourceFT {
     private WebTestClient webTestClient;
 
     @Test
-    void testReadUser() {
+    void testReadById() {
         webTestClient.get()
                 .uri(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000")
                 .exchange()
@@ -40,7 +40,7 @@ class UserResourceFT {
     @Test
     void testReadByMobile() {
         webTestClient.get()
-                .uri(USERS + MOBILE + MOBILE_ID, "666000661")
+                .uri(USERS + MOBILE_ID, "666000661")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserDto.class)
@@ -55,7 +55,7 @@ class UserResourceFT {
     void testUpdateByMobile() {
         String mobile = "666000660";
         UserDto userDto = webTestClient.get()
-                .uri(USERS + MOBILE + MOBILE_ID, mobile)
+                .uri(USERS + MOBILE_ID, mobile)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserDto.class)
@@ -67,7 +67,7 @@ class UserResourceFT {
 
         userDto.setFirstName("update");
         webTestClient.put()
-                .uri(USERS + MOBILE + MOBILE_ID, mobile)
+                .uri(USERS + MOBILE_ID, mobile)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(userDto)
                 .exchange()
@@ -77,7 +77,7 @@ class UserResourceFT {
 
         userDto.setFirstName(oldName);
         webTestClient.put()
-                .uri(USERS + MOBILE + MOBILE_ID, mobile)
+                .uri(USERS + MOBILE_ID, mobile)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(userDto)
                 .exchange()
@@ -85,7 +85,7 @@ class UserResourceFT {
     }
 
     @Test
-    void testReadUserNotFound() {
+    void testReadByIdNotFound() {
         webTestClient.get()
                 .uri(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff9999")
                 .exchange()

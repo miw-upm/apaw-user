@@ -15,3 +15,6 @@ networks:
     external: true
 
 #> docker compose up --build -d
+
+# Crear la red
+#> docker network create apawnet

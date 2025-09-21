@@ -46,6 +46,9 @@ networks:
 # Construir todas las BD
 #> docker compose -f docker-compose-db.yml -p databases up -d
 
+# Crear la red
+#> docker network create apawnet
+
 # CONSOLA & COMANDOS Postgres
 #> docker exec -it postgres-server  psql -U postgres
 #  \?   Help
