@@ -1,6 +1,6 @@
 package es.upm.miw.apaw.services;
 
-import es.upm.miw.apaw.data.entities.User;
+import es.upm.miw.apaw.infrastructure.data.models.User;
 import es.upm.miw.apaw.services.exceptions.ConflictException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

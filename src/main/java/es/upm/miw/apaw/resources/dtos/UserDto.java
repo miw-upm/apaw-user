@@ -1,7 +1,11 @@
 package es.upm.miw.apaw.resources.dtos;
 
-import es.upm.miw.apaw.data.entities.DocumentType;
-import es.upm.miw.apaw.data.entities.User;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import es.upm.miw.apaw.infrastructure.data.models.Province;
+import es.upm.miw.apaw.infrastructure.data.models.Role;
+import es.upm.miw.apaw.infrastructure.data.models.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -15,11 +19,12 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-@Builder
+@Builder(toBuilder = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
+    @JsonProperty(access = Access.READ_ONLY)
     private UUID id;
     @NotNull
     @NotBlank
@@ -30,12 +35,15 @@ public class UserDto {
     private String firstName;
     private String familyName;
     private String email;
-    private DocumentType documentType;
     private String identity;
     private String address;
     private String city;
-    private String province;
+    private Province province;
     private Integer postalCode;
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private String password;
+    private Role role;
+    @JsonProperty(access = Access.READ_ONLY)
     private LocalDate registrationDate;
     private Boolean active;
 
@@ -44,23 +52,28 @@ public class UserDto {
     }
 
     public void doDefault() {
+        if (Objects.isNull(role)) {
+            this.role = Role.CUSTOMER;
+        }
         if (Objects.isNull(active)) {
             this.active = true;
         }
     }
 
-    public UserDto ofMobileFirstNameFamilyName() {
+    public UserDto toSummary() {
         return UserDto.builder()
                 .id(this.getId())
                 .mobile(this.getMobile())
                 .firstName(this.getFirstName())
                 .familyName(this.getFamilyName())
+                .email(this.getEmail())
                 .build();
     }
 
-    public User toUser() {
+    public User toDomain() {
         User user = new User();
         BeanUtils.copyProperties(this, user);
         return user;
     }
+
 }
