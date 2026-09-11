@@ -7,6 +7,7 @@ services:
       - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/apawuserdb
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://apaw-eureka:8761/eureka/
     networks:
       - apawnet
 
