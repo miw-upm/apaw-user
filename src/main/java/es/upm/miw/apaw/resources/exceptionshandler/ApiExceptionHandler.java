@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,14 +35,21 @@ public class ApiExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({
-            NoResourceFoundException.class,
-            ResponseStatusException.class
-
+            NoResourceFoundException.class
     })
     @ResponseBody
     public ErrorMessage noResourceFoundRequest(Exception exception) {
         return new ErrorMessage(new NotFoundException(
                 "Path no encontrado... **/actuator/info, **/swagger-ui.html, **/v3/api-docs"));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorMessage> responseStatusRequest(
+            ResponseStatusException exception) {
+        return ResponseEntity
+                .status(exception.getStatusCode())
+                .headers(exception.getHeaders())
+                .body(new ErrorMessage(exception));
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

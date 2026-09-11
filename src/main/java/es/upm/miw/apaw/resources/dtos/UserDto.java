@@ -49,9 +49,6 @@ public class UserDto {
 
     public UserDto(User user) {
         BeanUtils.copyProperties(user, this);
-    }
-
-    public void doDefault() {
         if (Objects.isNull(role)) {
             this.role = Role.CUSTOMER;
         }

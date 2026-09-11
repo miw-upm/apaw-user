@@ -21,7 +21,6 @@ public class UserResource {
 
     @PostMapping(USERS)
     public void create(@Valid @RequestBody UserDto userDto) {
-        userDto.doDefault();
         this.userService.create(userDto.toDomain());
     }
 
