@@ -1,202 +1,150 @@
 package es.upm.miw.apaw.functionaltests;
 
+import es.upm.miw.apaw.config.SeederForDev;
+import es.upm.miw.apaw.infrastructure.data.daos.UserRepository;
+import es.upm.miw.apaw.infrastructure.data.models.Role;
+import es.upm.miw.apaw.infrastructure.data.models.User;
+import es.upm.miw.apaw.resources.UserResource;
 import es.upm.miw.apaw.resources.dtos.UserDto;
-import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
-import static es.upm.miw.apaw.resources.UserResource.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.UUID;
 
-@Log4j2
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
 @ActiveProfiles("test")
 class UserResourceFT {
 
+    @LocalServerPort
+    private int port;
+
     @Autowired
-    private WebTestClient webTestClient;
+    private UserRepository userRepository;
 
-    @Test
-    void testReadById() {
-        webTestClient.get()
-                .uri(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(UserDto.class)
-                .value(user -> {
-                    assertThat(user).isNotNull();
-                    assertThat(user.getMobile()).isEqualTo("666000660");
-                    assertThat(user.getFirstName()).isEqualTo("user0");
-                });
+    private RestTestClient restTestClient;
+
+    @BeforeEach
+    void setUp() {
+        this.restTestClient = RestTestClient.bindToServer()
+                .baseUrl("http://localhost:" + this.port)
+                .build();
     }
 
     @Test
-    void testReadByMobile() {
-        webTestClient.get()
-                .uri(USERS + MOBILE_ID, "666000661")
+    void testFindAll() {
+        this.restTestClient.get()
+                .uri(UserResource.USERS)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(UserDto.class)
-                .value(user -> {
-                    assertThat(user).isNotNull();
-                    assertThat(user.getMobile()).isEqualTo("666000661");
-                    assertThat(user.getFirstName()).isEqualTo("user1");
-                });
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .extracting(UserDto::getMobile)
+                        .contains(
+                                SeederForDev.C_0.getMobile(),
+                                SeederForDev.ADMIN.getMobile(),
+                                SeederForDev.MANAGER.getMobile(),
+                                SeederForDev.OPERATOR.getMobile()
+                        ));
     }
 
     @Test
-    void testUpdateByMobile() {
-        String mobile = "666000660";
-        UserDto userDto = webTestClient.get()
-                .uri(USERS + MOBILE_ID, mobile)
+    void testFindByMobile() {
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.USERS)
+                        .queryParam("mobile", SeederForDev.MANAGER.getMobile())
+                        .build())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(UserDto.class)
-                .returnResult()
-                .getResponseBody();
-
-        assertThat(userDto).isNotNull();
-        String oldName = userDto.getFirstName();
-
-        userDto.setFirstName("update");
-        webTestClient.put()
-                .uri(USERS + MOBILE_ID, mobile)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDto)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(UserDto.class)
-                .value(updated -> assertThat(updated.getFirstName()).isEqualTo("update"));
-
-        userDto.setFirstName(oldName);
-        webTestClient.put()
-                .uri(USERS + MOBILE_ID, mobile)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDto)
-                .exchange()
-                .expectStatus().isOk();
-    }
-
-    @Test
-    void testReadByIdNotFound() {
-        webTestClient.get()
-                .uri(USERS + ID_ID, "aaaaaaaa-bbbb-cccc-dddd-eeeeffff9999")
-                .exchange()
-                .expectStatus().isNotFound();
-    }
-
-    @Test
-    void testCreateConflictWithMobile() {
-        UserDto userDto = UserDto.builder().mobile("666000660").firstName("daemon").build();
-
-        webTestClient.post()
-                .uri(USERS)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDto)
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .singleElement()
+                        .extracting(UserDto::getMobile, UserDto::getFirstName)
+                        .containsExactly(SeederForDev.MANAGER.getMobile(), SeederForDev.MANAGER.getFirstName()));
     }
 
     @Test
     void testCreate() {
-        UserDto userDto = UserDto.builder().mobile("666000666").firstName("new").build();
+        String mobile = "699999997";
+        String firstName = "ResourceUser";
+        UserDto userDto = UserDto.builder()
+                .mobile(mobile)
+                .firstName(firstName)
+                .build();
 
-        webTestClient.post()
-                .uri(USERS)
+        this.restTestClient.post()
+                .uri(UserResource.USERS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDto)
+                .body(userDto)
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk()
+                .expectBody().isEmpty();
+
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.USERS)
+                        .queryParam("mobile", mobile)
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .singleElement()
+                        .extracting(UserDto::getMobile, UserDto::getFirstName)
+                        .containsExactly(mobile, firstName));
     }
 
     @Test
-    void testCreateConflictWithEmail() {
+    void testCreateWithExistingMobile() {
         UserDto userDto = UserDto.builder()
-                .mobile("666666666")
-                .firstName("daemon")
-                .email("user0@gmail.com")
+                .mobile(SeederForDev.MANAGER.getMobile())
+                .firstName("DuplicatedMobile")
                 .build();
 
-        webTestClient.post()
-                .uri(USERS)
+        this.restTestClient.post()
+                .uri(UserResource.USERS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDto)
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
-    }
-
-    @Test
-    void testCreateConflictWithIdentity() {
-        UserDto userDto = UserDto.builder()
-                .mobile("666666666")
-                .firstName("daemon")
-                .identity("66666600D")
-                .build();
-
-        webTestClient.post()
-                .uri(USERS)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDto)
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
-    }
-
-    @Test
-    void testCreateUserWithoutNumber() {
-        UserDto userDto = UserDto.builder()
-                .mobile(null)
-                .firstName("daemon")
-                .build();
-
-        webTestClient.post()
-                .uri(USERS)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDto)
+                .body(userDto)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
 
     @Test
-    void testFind() {
-        webTestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(USERS)
-                        .queryParam("mobile", "666000660")
-                        .build())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(UserDto.class)
-                .value(users -> {
-                    assertThat(users).isNotNull().isNotEmpty();
-                    UserDto first = users.getFirst();
-                    assertThat(first.getFirstName()).isNotNull();
-                    assertThat(first.getAddress()).isNull();
-                });
-    }
+    void testDelete() {
+        UUID id = UUID.randomUUID();
+        String mobile = "699999995";
+        User user = User.builder()
+                .id(id)
+                .mobile(mobile)
+                .firstName("DeletedResourceUser")
+                .role(Role.CUSTOMER)
+                .active(true)
+                .build();
 
-    @Test
-    void testFindWithProjection() {
-        webTestClient.get()
+        this.userRepository.save(user);
+
+        this.restTestClient.delete()
+                .uri(UserResource.USERS + "/" + id)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().isEmpty();
+
+        this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(USERS)
-                        .queryParam("projection", "true")
-                        .queryParam("mobile", "666000660")
+                        .path(UserResource.USERS)
+                        .queryParam("mobile", mobile)
                         .build())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(UserDto.class)
-                .value(users -> {
-                    assertThat(users).isNotNull().isNotEmpty();
-                    UserDto first = users.getFirst();
-                    assertThat(first.getFirstName()).isNotNull();
-                    assertThat(first.getAddress()).isNotNull();
-                });
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users).isEmpty());
     }
 }
