@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -24,6 +23,8 @@ import java.util.stream.Collectors;
 //@Profile({"dev"})
 public class LoggingFilter extends OncePerRequestFilter {
 
+    private static final int CACHE_LIMIT = 64 * 1024;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -34,7 +35,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         Map<String, String> parameterMap = Collections.list(request.getParameterNames()).stream()
                 .collect(Collectors.toMap(name -> name, request::getParameter));
         log.debug("     Parameters:{}", parameterMap);
-        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
+        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request, CACHE_LIMIT);
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
         try {
             filterChain.doFilter(wrappedRequest, wrappedResponse);

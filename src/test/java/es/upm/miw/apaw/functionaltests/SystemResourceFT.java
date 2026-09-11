@@ -1,45 +1,47 @@
 package es.upm.miw.apaw.functionaltests;
 
+import es.upm.miw.apaw.resources.SystemResource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
-import static es.upm.miw.apaw.resources.SystemResource.SYSTEM;
-import static es.upm.miw.apaw.resources.SystemResource.VERSION_BADGE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
 @ActiveProfiles("test")
 class SystemResourceFT {
+    @LocalServerPort
+    private int port;
 
-    @Autowired
-    private WebTestClient webTestClient;
+    private RestTestClient restTestClient;
+
+    @BeforeEach
+    void setUp() {
+        this.restTestClient = RestTestClient.bindToServer()
+                .baseUrl("http://localhost:" + this.port)
+                .build();
+    }
 
     @Test
     void testReadBadge() {
-        webTestClient.get()
-                .uri(SYSTEM+VERSION_BADGE)
+        this.restTestClient.get()
+                .uri(SystemResource.SYSTEM + SystemResource.VERSION_BADGE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
-                .value(body -> assertThat(body)
-                        .isNotNull()
-                        .startsWith("<svg"));
+                .value(body -> assertThat(body).isNotNull().startsWith("<svg"));
     }
 
     @Test
     void testReadInfo() {
-        webTestClient.get()
-                .uri(SYSTEM)
+        this.restTestClient.get()
+                .uri(SystemResource.SYSTEM)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
-                .value(body -> assertThat(body)
-                        .isNotNull()
-                        .isNotEmpty());
+                .value(body -> assertThat(body).isNotNull().isNotEmpty());
     }
 }
