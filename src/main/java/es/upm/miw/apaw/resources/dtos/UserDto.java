@@ -49,12 +49,6 @@ public class UserDto {
 
     public UserDto(User user) {
         BeanUtils.copyProperties(user, this);
-        if (Objects.isNull(role)) {
-            this.role = Role.CUSTOMER;
-        }
-        if (Objects.isNull(active)) {
-            this.active = true;
-        }
     }
 
     public UserDto toSummary() {

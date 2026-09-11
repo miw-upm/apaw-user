@@ -35,6 +35,18 @@ public class User {
     private LocalDate registrationDate;
     private Boolean active;
 
+    public void doDefault() {
+        if (this.password == null) {
+            this.password = UUID.randomUUID().toString();
+        }
+        if (this.role == null) {
+            this.role = Role.CUSTOMER;
+        }
+        if (this.active == null) {
+            this.active = true;
+        }
+    }
+
     public boolean isBillable() {
         return this.hasContent(this.firstName)
                 && this.hasContent(this.familyName)

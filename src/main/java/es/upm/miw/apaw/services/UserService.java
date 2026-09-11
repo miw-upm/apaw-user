@@ -25,9 +25,7 @@ public class UserService {
     public void create(User user) {
         this.assertNoExistByMobile(user.getMobile());
         user.setId(UUID.randomUUID());
-        if (Objects.isNull(user.getPassword())) {
-            user.setPassword(UUID.randomUUID().toString());
-        }
+        user.doDefault();
         user.setRegistrationDate(LocalDate.now());
         this.userRepository.save(user);
     }
