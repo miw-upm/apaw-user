@@ -1,13 +1,18 @@
 server:
   port: 8081
+  forward-headers-strategy: framework
+
+info:
+  app:
+    artifact: "@project.artifactId@"
+    version: "@project.version@"
+    build: "@maven.build.timestamp@"
 
 spring:
   application:
     name: apaw-user
   profiles:
-    # Profile ----------------------------------------
-    active: dev
-  # ------------------------------------------------
+    default: dev
   output:
     ansi:
       enabled: ALWAYS
@@ -18,19 +23,32 @@ spring:
   jpa:
     open-in-view: false
 
-info:
-  app:
-    artifact: "@project.artifactId@"
-    version: "@project.version@"
-    build: "@maven.build.timestamp@"
+app:
+  hosting: localhost
+  db:
+    admin: ${DB_ADMIN:admin}
+    mobile: ${DB_MOBILE:6}
+    password: ${DB_PASSWORD:6}
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health
+  endpoint:
+    health:
+      show-details: never
 
 logging:
   level:
     root: WARN
     es.upm: DEBUG
-    org.springframework.security: WARN
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
