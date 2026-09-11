@@ -1,186 +1,304 @@
-# Guía de arquitectura y contribución — APAW User
+# Guía de estilo y arquitectura
 
-Guía para `apaw-user`, ejercicio docente de Arquitectura y Patrones para Aplicaciones Web.
-Revisada contra el código del repositorio el 2026-09-11.
+Documento normativo para contribuir en `apaw-user`, ejercicio docente de Arquitectura y Patrones para Aplicaciones Web.
 
-## Alcance y criterios
+El proyecto sigue una arquitectura por capas con Spring Boot y persistencia JPA. Las reglas establecen responsabilidades,
+convenciones y criterios para ampliar la aplicación. Los permisos quedan fuera del alcance del ejercicio.
 
-- Mantener una arquitectura de tres capas, sencilla y adecuada al ejercicio.
-- Los permisos y la autorización por roles quedan expresamente fuera del alcance. 
-- La presencia de Spring Security y del enum `Role` no implica que haya que implementar autorización.
-- No introducir arquitectura hexagonal, interfaces de servicio, modelos duplicados ni módulos adicionales sin una necesidad concreta.
-- `DEBE` indica una regla de contribución; `DEBERÍA`, una recomendación. Los apartados de estado actual describen la implementación y no obligan a perpetuarla.
-- Las mejoras propuestas no se consideran implementadas ni autorizan refactorizaciones ajenas a la tarea.
+## Criterios de corrección
+
+Cada criterio puede descontar puntos. La letra marca la penalización orientativa:
+
+- a = -0.2
+- b = -0.4
+- c = -0.6
+- d = -0.8
+- e = -1
+- f = -1.5
+- g = -2
+- h = -2.5
+- i = -3
+- j = -5
+- K = -10
+
+Coste de incumplir: cuando una sección indique un coste común, solo se etiqueta la regla que se sale de ese coste.
+
+## Niveles de regla
+
+- `DEBE`: obligatorio.
+- `NO DEBE`: prohibido.
+- `DEBERÍA`: recomendado, salvo razón técnica explícita.
+- `PUEDE`: opcional.
 
 ## Estructura y dependencias
 
-Paquete base: `es.upm.miw.apaw`.
-
 ```text
-Application
-config/
-  EurekaConfig
-  LoggingFilter
-  SecurityConfiguration
-  SeederForDev
-resources/
-  UserResource
-  SystemResource
-  VersionBadgeGenerator
-  dtos/
-    UserDto
-    ApplicationInfoDto
-    Validations
-  exceptionshandler/
-    ApiExceptionHandler
-services/
-  UserService
-  criteria/
-    UserFindCriteria
-  exceptions/
-    ApiException, ClientBusinessException, ErrorMessage, ...
-infrastructure/
-  data/
-    daos/
-      UserRepository
-    models/
-      User, Role, Province
-  support/       (actualmente solo un archivo de reserva)
-  clientshttp/   (actualmente solo un archivo de reserva)
+es.upm.miw.apaw/
+  Application
+  config/
+  resources/
+    dtos/
+    exceptionshandler/
+  services/
+    criteria/
+    exceptions/
+  infrastructure/
+    data/
+      daos/
+      models/
+    clientshttp/
+    support/
 ```
 
-Flujo principal:
+Capas principales:
 
-```text
-HTTP → Resource → Service → Repository → PostgreSQL
-          ↕           ↕
-         DTO     entidad JPA
-```
+- `resources`: entrada y salida HTTP, DTOs, validaciones de entrada y traducción HTTP de excepciones.
+- `services`: casos de uso, coordinación de operaciones, criterios y excepciones de negocio.
+- `infrastructure`: persistencia JPA, clientes HTTP salientes y soporte técnico.
+- `config`: configuración Spring e inicializadores.
 
-- Los recursos DEBEN delegar las operaciones de negocio en servicios.
-- Los servicios DEBEN trabajar con entidades y criterios, sin depender de `resources.dtos`.
-- Los servicios acceden directamente a repositorios Spring Data JPA.
-- `User` es simultáneamente entidad persistente y modelo usado por el servicio; no existe un modelo de dominio separado.
-- La conversión DTO ↔ entidad DEBE permanecer en `resources.dtos`.
-- No asumir la existencia de gateway, librería commons u otros servicios no incluidos en este repositorio.
+Reglas de dependencia:
 
-## Recursos HTTP
+- DEBE mantenerse el flujo `resources → services → infrastructure`.
+- `resources` DEBE delegar los casos de uso en `services`.
+- `services` PUEDE depender directamente de los repositorios JPA de `infrastructure.data.daos`.
+- `services` NO DEBE depender de DTOs ni componentes de `resources`.
+- `infrastructure` NO DEBE depender de `resources`.
+- Las entidades JPA NO DEBEN conocer DTOs, resources, services ni repositories.
+- NO DEBE duplicarse el modelo en una entidad JPA y un dominio separado sin una necesidad arquitectónica explícita.
 
-- Usar `@RestController`, sufijo `Resource` y constantes para rutas.
-- Usar inyección por constructor para colaboradores; `@RequiredArgsConstructor` es la convención de `UserResource` y `UserService`.
-- Validar cuerpos de entrada con `@Valid` y las restricciones del DTO.
-- Recibir criterios de búsqueda con `@ModelAttribute`.
-- No devolver entidades JPA directamente como respuesta HTTP.
+## Convenciones de nombres (b)
 
-Contrato actual de usuarios:
+- Clases e interfaces: DEBE usar PascalCase (`User`, `UserService`, `UserFindCriteria`).
+- Métodos y variables: DEBE usar camelCase (`registrationDate`, `findByMobile`).
+- Constantes: DEBE usar mayúsculas con guion bajo (`USER_ID`, `USERS`).
+- Paquetes: DEBE usar minúsculas y jerarquías separadas por puntos (`infrastructure.data.daos`).
+- Enums: DEBE usar PascalCase para el tipo y mayúsculas para sus valores (`Role.CUSTOMER`).
+- Predicados: DEBE usar prefijos `is`, `has` o `can` (`isBillable`, `hasMobile`).
+- DEBE mantener una convención uniforme entre predicados relacionados, aunque alguna llamada utilice negación.
+- Los nombres DEBEN ser descriptivos y estar en inglés.
+- DEBERÍA evitar abreviaturas, salvo las habituales (`id`, `url`, `dto`, `dao`).
+- NO DEBE usar prefijos de tipo ni notación húngara (`strName`, `iCount`).
 
-| Operación | Método del recurso | Respuesta de éxito |
-| --- | --- | --- |
-| `POST /users` | `create` | 200 sin cuerpo |
-| `GET /users/{id}` | `read` | 200 con `UserDto` |
-| `GET /users` | `find` | 200 con lista de resúmenes `UserDto` |
-| `DELETE /users/{id}` | `delete` | 200 sin cuerpo |
+## Estilo de código (a)
 
-`SystemResource` expone `/system` y `/system/version-badge`.
-Los cambios de contrato HTTP DEBEN acompañarse de la revisión de los tests funcionales afectados.
+- DEBE usar `this.` para acceder a atributos y métodos propios de instancia.
+- DEBE seguir el formato y estilo de las clases vecinas.
+- NO DEBE usar `System.out.print` ni `System.out.println`; usar logging.
+- DEBE usar `@Log4j2` o `LogManager.getLogger()` para logging.
+- DEBERÍA elegir el nivel de log según la severidad del mensaje.
+- DEBERÍA aclarar el código con nombres y métodos expresivos antes de añadir comentarios explicativos.
+- (b) Los mensajes de negocio DEBEN incluir el dato causante cuando ayude a identificar el error, sin incluir secretos.
+- NO DEBE cambiar de estilo de forma incidental al ampliar una clase.
 
-## DTOs y criterios
+## Límites de tamaño (b-c)
 
-- DTOs actuales: `UserDto` y `ApplicationInfoDto`; no crear DTOs o convenciones de otros proyectos por analogía.
-- `UserDto` sirve como entrada y salida. `id` y `registrationDate` son `READ_ONLY`; `password` es `WRITE_ONLY`.
-- El mapeo actual usa `BeanUtils.copyProperties`, constructor desde `User` y `toDomain()`.
-- `toSummary()` construye un DTO con id, móvil, nombre, apellidos y email.
-- Actualmente `UserResource.create()` llama a `UserDto.doDefault()`, que asigna `CUSTOMER` y activo cuando faltan. No describir estos valores como invariantes ya garantizadas por el servicio.
-- Los criterios DEBEN ubicarse en `services.criteria`, con sufijo `FindCriteria` y sin anotaciones de serialización HTTP.
-- `UserFindCriteria` contiene `active`, `mobile` y `billable`, todos opcionales.
+Son umbrales de revisión. El criterio principal es responsabilidad única y legibilidad.
 
-## Servicios y modelo
+- DEBERÍA mantener un máximo de 3 parámetros por método; agrupar filtros relacionados en un `FindCriteria`.
+- DEBERÍA mantener un máximo de 20 líneas por método.
+- DEBERÍA mantener complejidad ciclomática máxima de 8 y un máximo de 2 niveles de anidamiento.
+- DEBERÍA mantener un máximo de 20 métodos públicos y 6 dependencias inyectadas por clase.
+- DEBERÍA mantener un máximo de 250 líneas por clase y 120 caracteres por línea.
+- DEBERÍA mantener un máximo de 8 atributos, salvo entidades y DTOs con más campos reales del recurso.
+- Los tests y seeders PUEDEN superar los umbrales cuando dividirlos perjudique su claridad.
+- NO DEBE crear clases, DTOs o abstracciones únicamente para cumplir una cifra.
 
-- Usar `@Service`, sufijo `Service` y métodos con nombres como `create`, `read`, `find` y `delete`.
-- Encapsular comprobaciones de negocio en métodos privados cuando facilite la lectura.
-- `create(User)` comprueba el móvil, asigna UUID y fecha de registro, genera una contraseña si es nula y guarda la entidad.
-- El móvil existente provoca `ClientBusinessException`.
-- `read(UUID)` lanza `NotFoundException` cuando no encuentra el usuario.
-- `delete(UUID)` delega directamente en `deleteById`; no tiene comprobación explícita de existencia.
-- `find()` devuelve `Stream<User>` a partir de resultados materializados del repositorio. Filtra `billable` en memoria; actualmente no hay paginación.
-- `User.isBillable()` comprueba que estén presentes los datos necesarios para facturación.
-- No existen límites transaccionales explícitos en `UserService`. Si una tarea introduce operaciones que deban ser atómicas, definir su transacción en el servicio; no asumir que varias llamadas al repositorio comparten una transacción.
+## Resources HTTP (e-f)
 
-## Persistencia
+- DEBE usar `@RestController` y sufijo `Resource`.
+- DEBE declarar las rutas mediante constantes y mantener coherencia entre las operaciones del recurso.
+- DEBE usar inyección por constructor con `@RequiredArgsConstructor` para sus colaboradores.
+- PUEDE usar `@Value` para propiedades simples de configuración.
+- DEBE recibir cuerpos de negocio mediante DTOs de `resources.dtos`.
+- DEBE validar la entrada con `@Valid` cuando el DTO declare restricciones.
+- DEBERÍA recibir filtros con `@ModelAttribute` y clases `FindCriteria`.
+- DEBE convertir DTOs a entidades antes de llamar al servicio y entidades a DTOs antes de responder.
+- NO DEBE exponer entidades JPA directamente como respuesta HTTP.
+- NO DEBE consultar repositorios ni contener decisiones de negocio.
+- Cada endpoint DEBERÍA delegar en un único servicio principal.
+- NO DEBE aplicar valores por defecto de creación; el servicio decide cuándo se inicializa el modelo.
+- NO DEBE añadir permisos como parte del desarrollo ordinario de este ejercicio.
 
-- Usar Spring Data JPA, Hibernate y PostgreSQL; H2 se usa en tests.
-- Los repositorios DEBEN ubicarse en `infrastructure.data.daos` y extender `JpaRepository`.
-- `UserRepository` usa `User` y `UUID`, con consultas derivadas por móvil, activo y roles.
-- Los modelos DEBEN ubicarse en `infrastructure.data.models`.
-- `User` usa `@Entity`, `@Table(name = "miwUser")` y `@Id` de Jakarta Persistence.
-- El móvil tiene `@Column(unique = true, nullable = false)`; los enums se almacenan con `EnumType.STRING`.
-- No usar reglas de MongoDB, `@Document`, `MongoTemplate` o `@DBRef` en esta aplicación.
-- `spring.jpa.open-in-view` está desactivado. No depender de carga diferida desde el controlador.
+## DTOs (e-f)
 
-## Excepciones y respuestas de error
+- DEBE ubicarse en `resources.dtos`, con sufijo `Dto`.
+- DEBE representar los datos de intercambio HTTP y declarar sus restricciones Jakarta Validation.
+- DEBE mantener la conversión DTO ↔ entidad en la propia clase mediante constructor y `toDomain()`.
+- DEBERÍA usar `BeanUtils.copyProperties`, Lombok y builders siguiendo el estilo existente.
+- DEBE priorizar un DTO general por recurso cuando permita expresar sus operaciones con claridad.
+- PUEDE usar `READ_ONLY` y `WRITE_ONLY` para diferencias entre entrada y salida.
+- PUEDE usar `toSummary()` para una respuesta reducida del mismo recurso.
+- NO DEBE crear variantes de creación, actualización, lectura y resumen automáticamente.
+- Otro DTO DEBE responder a una necesidad concreta de contrato que no quede clara con el DTO general.
+- PUEDE usar records para datos simples e inmutables; NO DEBE convertir DTOs amplios a records por uniformidad.
+- NO DEBE consultar la base de datos, contener reglas de negocio ni decidir valores por defecto de creación.
+- NO DEBE ubicarse en `services` ni ser conocido por entidades o repositorios.
 
-- Las excepciones locales y `ErrorMessage` se ubican actualmente en `services.exceptions`.
-- La traducción HTTP DEBE centralizarse en `resources.exceptionshandler.ApiExceptionHandler`.
-- `ErrorMessage` contiene `error`, `message` y `cause`.
-- `ApiException` contiene detalle y detalle de causa; `ClientBusinessException` extiende directamente `RuntimeException`.
-- Mantener `ClientBusinessException` y `ConflictException` → 409 para los casos gestionados como conflicto.
-- Mantener `NotFoundException` y `NoResourceFoundException` → 404.
-- `ResponseStatusException` tiene un manejador separado que conserva `getStatusCode()` y `getHeaders()` mediante `ResponseEntity`. No asignarle un estado fijo.
-- El manejador actual también agrupa validación y otras excepciones bajo 400, y tiene una captura general con 500.
-- `HttpRequestMethodNotSupportedException` sigue agrupada bajo 400 en el código actual: esto describe el estado existente, no una regla para nuevos manejadores.
-- Al cambiar una traducción, comprobar la excepción concreta y el estado esperado. Distinguir fallos observados de ejemplos hipotéticos.
+## Criteria (c-d)
 
-## Configuración e infraestructura
+- DEBE ubicarse en `services.criteria`, con sufijo `FindCriteria`.
+- DEBE expresar filtros de búsqueda, no detalles de presentación ni consultas a base de datos.
+- DEBERÍA ofrecer predicados de presencia (`hasMobile`, `hasActive`, `hasBillable`) para simplificar el servicio.
+- NO DEBE contener anotaciones de serialización HTTP.
+- Al añadir un filtro, DEBE definirse el significado de su ausencia y probar coincidencias y exclusiones.
+- NO DEBE introducir una clase diferente por cada combinación de filtros.
 
-- `config` contiene configuración técnica e inicialización.
-- `EurekaConfig` declara un `RestTemplate` con `@LoadBalanced` y tiempos de conexión y lectura.
-- Hay dependencia de Eureka y OpenFeign, y `@EnableFeignClients` en `Application`; actualmente no hay clientes Feign implementados.
-- Si se añaden clientes HTTP, ubicarlos en `infrastructure.clientshttp` y aislar allí los detalles de comunicación.
-- Reservar `infrastructure.support` para utilidades técnicas internas, sin mezclar clientes HTTP ni reglas de negocio.
-- `LoggingFilter` registra peticiones y respuestas; no interpretar `WRITE_ONLY` como protección del contenido de los logs.
-- `SecurityConfiguration` configura sesiones sin estado, desactiva CSRF y habilita seguridad de métodos, pero no define reglas de permisos. Mantener el alcance docente indicado arriba.
-- `Application` excluye `ErrorMvcAutoConfiguration`.
+## Services (e-f)
 
-## Perfiles y datos iniciales
+- DEBE usar `@Service`, sufijo `Service` e inyección por constructor.
+- DEBE implementar casos de uso sin mantener estado mutable propio de una petición.
+- DEBE trabajar con entidades y criterios, no con DTOs ni respuestas HTTP.
+- DEBE coordinar repositorios y las reglas que requieran consultar otros datos, como unicidad del móvil.
+- DEBE decidir cuándo aplicar el comportamiento del modelo: `create()` llama a `user.doDefault()`.
+- DEBE controlar la identidad y fecha asignadas durante la creación.
+- DEBE lanzar excepciones de `services.exceptions` para los errores de negocio o aplicación.
+- DEBE lanzar `NotFoundException` en lecturas y actualizaciones de recursos inexistentes.
+- El borrado DEBE tolerar que el recurso no exista, salvo requisito explícito contrario.
+- DEBERÍA mantener nombres consistentes: `create`, `read`, `readByMobile`, `update`, `delete`, `find`.
+- DEBERÍA encapsular comprobaciones en métodos privados (`assertXxx`, `validateXxx`).
+- DEBE delimitar en el servicio la transacción cuando varias operaciones del caso de uso deban ser atómicas.
+- NO DEBE depender de controllers, `ResponseEntity`, `RestTestClient` ni detalles de presentación.
 
-- `application.yml` define puerto 8081 y perfil predeterminado `dev`.
-- `application-dev.yml` configura PostgreSQL y `ddl-auto: update`.
-- `application-test.yml` configura H2 en memoria y desactiva Eureka.
-- `SeederForDev` DEBE permanecer limitado a `dev` y `test`, con `ApplicationRunner` y lógica en `run()`.
-- Actualmente el seeder borra todos los usuarios y vuelve a cargarlos al arrancar. Tenerlo en cuenta antes de ejecutar la aplicación contra una base con datos que deban conservarse.
-- Mantener los UUID fijos del seeder mientras los tests dependan de ellos.
+## Persistencia JPA (e-f)
 
-## Tests y verificación
+- DEBE usar repositorios Spring Data `JpaRepository` en `infrastructure.data.daos`.
+- DEBE nombrar cada repositorio `{Entity}Repository` y parametrizarlo con su entidad y tipo de identidad.
+- DEBERÍA usar consultas derivadas para operaciones simples (`findByMobile`, `existsByMobile`).
+- PUEDE usar `@Query`, `Specification` o repositorios custom cuando una consulta lo necesite.
+- DEBE mantener SQL y detalles de persistencia dentro de la infraestructura.
+- NO DEBE incluir decisiones del caso de uso en el repositorio.
+- Los servicios PUEDEN combinar consultas con predicados del modelo que dependan de su estado.
+- DEBE mantener coherencia entre una regla del modelo y su traducción a consulta cuando se necesite filtrar en la BD.
+- NO DEBE añadir paginación o mecanismos de consulta más complejos sin un requisito o una limitación comprobada.
 
-- `*Test`: pruebas ejecutadas por Surefire; actualmente `ApplicationTest` carga el contexto.
-- `*IT`: integración de repositorio y servicio con `@SpringBootTest` y perfil `test`.
-- `*FT`: pruebas HTTP con `RANDOM_PORT`, perfil `test` y `org.springframework.test.web.servlet.client.RestTestClient`.
-- Para comprobar 409, usar `.expectStatus().isEqualTo(HttpStatus.CONFLICT)`; no existe `.isConflict()` en el cliente utilizado.
-- Cubrir los casos de éxito y error afectados por el cambio. Los permisos quedan fuera del ejercicio.
-- Los nuevos tests que muten datos compartidos DEBERÍAN limpiar sus datos o aislar su estado; hay tests de creación actuales sin limpieza explícita.
-- Usar JDK 21, conforme al objetivo de Maven y al entorno de CI.
-- `mvn test` ejecuta Surefire; `mvn verify` incluye las ejecuciones Failsafe de `*IT` y `*FT` y su verificación final.
-- Para cambios exclusivamente documentales, revisar contenido y diff; no es necesario ejecutar la aplicación.
+## Entidades JPA (e-f)
 
-## Tecnología y despliegue
+- DEBE ubicarse en `infrastructure.data.models`, usar `@Entity` y nombrarse sin sufijo.
+- DEBE marcar la identidad con `jakarta.persistence.Id`.
+- DEBERÍA declarar restricciones de unicidad y obligatoriedad en columnas cuando formen parte de la integridad.
+- DEBE persistir enums mediante `@Enumerated(EnumType.STRING)`.
+- DEBE usar relaciones JPA cuando el modelo requiera relaciones entre entidades.
+- PUEDE usar Lombok conforme al estilo del proyecto.
+- DEBE encapsular el comportamiento derivado de sus campos, como `isBillable()`.
+- DEBE encapsular los valores por defecto en `doDefault()` cuando formen parte de su inicialización.
+- `doDefault()` DEBE completar valores ausentes sin sobrescribir los proporcionados.
+- La llamada a `doDefault()` DEBE decidirla el servicio que conoce la operación.
+- NO DEBE inicializar contraseñas o valores de creación en el constructor vacío usado por JPA para cargar entidades.
+- NO DEBE consultar repositorios ni depender de services, DTOs, resources o configuración.
 
-Versiones observadas en `pom.xml` (consultarlo antes de modificar dependencias):
+## Identidad de entidades (f)
 
-- Java 21.
-- Spring Boot 4.1.0.
-- Spring Cloud 2025.1.2, gestionado mediante BOM.
-- Springdoc OpenAPI 3.0.3.
-- Maven, Lombok, Jakarta Validation, Spring MVC y Spring Data JPA.
-- WebFlux está declarado con alcance de test; la aplicación HTTP es Spring MVC.
+- DEBE usar un atributo técnico `id` de tipo `UUID`, sin significado de negocio.
+- NO DEBE usar móvil, email u otra clave natural como identidad técnica.
+- DEBE asignar la identidad al crear, antes de persistir.
+- PUEDE usar UUID fijos en el seeder para referencias estables en tests.
+- Las restricciones de unicidad DEBEN respaldarse en base de datos cuando sean necesarias para la integridad.
+- NO DEBE confundir una comprobación previa de existencia con la garantía de una restricción única.
 
-La CI de `.github/workflows/ci.yml` ejecuta `mvn verify`, CodeQL y SonarCloud.
-El Dockerfile construye con Maven y ejecuta con JRE 21 y usuario sin privilegios.
-`docker-compose.yml` publica 8081 y utiliza la red externa `apawnet`.
-El healthcheck del Dockerfile apunta actualmente a 8080, distinto del puerto 8081 configurado en la aplicación; no tomarlo como referencia de puerto sin revisar esa discrepancia.
+## Infrastructure support (c-d)
 
-## Límites de las contribuciones
+- DEBE ubicarse en `infrastructure.support`.
+- DEBE contener capacidades técnicas internas reutilizables.
+- PUEDE envolver una librería externa para aislar sus detalles cuando sea necesario.
+- NO DEBE contener reglas de negocio ni clientes HTTP salientes.
 
-- No introducir DTOs en servicios ni acceso directo al repositorio desde recursos de negocio.
-- No implementar permisos como parte de una revisión general.
-- No cambiar contratos, valores por defecto o comportamiento de borrado incidentalmente.
-- Mantener esta guía sincronizada cuando cambien la estructura o las decisiones arquitectónicas.
+## Infrastructure clients HTTP (c-d)
+
+- DEBE ubicarse en `infrastructure.clientshttp`.
+- DEBE encapsular comunicaciones HTTP salientes y sus detalles de protocolo.
+- El servicio DEBE decidir cuándo invocar al cliente dentro del caso de uso.
+- PUEDE agrupar clientes en subpaquetes cuando aumenten las integraciones.
+- NO DEBE contener controllers HTTP de entrada ni decisiones de negocio.
+
+## Excepciones y errores (e-f)
+
+- DEBE centralizar la traducción HTTP en `resources.exceptionshandler.ApiExceptionHandler`.
+- DEBE usar `services.exceptions` para excepciones de negocio y aplicación.
+- DEBE devolver el formato `ErrorMessage` cuando haya cuerpo de error.
+- Los errores conocidos DEBEN tener tratamiento explícito.
+- En este ejercicio, la captura general de `Exception.class` con 500 DEBE reservarse para errores imprevistos.
+- NO DEBE enviar una excepción identificada al manejador general como sustituto de decidir su tratamiento.
+- El estado de un manejador específico DEBE elegirse según el significado del error y el contrato de la API.
+- DEBE conservar el estado y las cabeceras de `ResponseStatusException`.
+- Los servicios NO DEBEN capturar excepciones técnicas si no aportan una decisión de negocio.
+- Si un manejador agrupa excepciones técnicas, DEBE tenerse en cuenta que pueden representar distintas causas.
+- NO DEBE atribuir toda violación de integridad a un móvil duplicado sin comprobar su causa.
+- Los errores imprevistos DEBEN registrarse con nivel `error`.
+- DEBE actualizar los tests afectados cuando cambie un mapeo HTTP.
+
+## Configuración e inicializadores (e-f)
+
+- DEBE ubicarse en `config` y usar `@Configuration` cuando declare beans.
+- DEBE reservarse para configuración técnica y construcción de componentes, sin reglas de negocio.
+- Los inicializadores DEBEN implementar `ApplicationRunner` y ejecutar su lógica en `run(...)`.
+- `SeederForDev` DEBE limitarse a los perfiles `dev` y `test`.
+- DEBE mantener estables las referencias del seeder utilizadas por los tests.
+- NO DEBE modificar datos existentes del seeder de manera que cambie el significado de esas referencias.
+- PUEDE ampliar el seeder con nuevos datos sin rehacer los tests anteriores.
+
+## Tests (e-f)
+
+Convenciones:
+
+- `*Test`: unitarios o pruebas específicas de contexto, según corresponda.
+- `*IT`: integración de servicios y repositorios.
+- `*FT`: funcionales HTTP.
+
+Reglas:
+
+- DEBE leer y seguir el estilo de los tests de la clase antes de ampliarla.
+- DEBE usar métodos `@Test` independientes, nombres `testXxx`, builders y AssertJ.
+- DEBE usar `assertThatThrownBy` para comprobar excepciones del servicio.
+- NO DEBE introducir tests parametrizados, condicionales ni estilos alternativos al ampliar estas clases.
+- DEBE usar `@SpringBootTest` y `@ActiveProfiles("test")` cuando se levante el contexto para integración o HTTP.
+- Los tests HTTP DEBEN usar `RANDOM_PORT` y `RestTestClient`.
+- Las respuestas de usuarios DEBEN comprobarse con `expectBody(UserDto.class)` o `expectBody(UserDto[].class)` y AssertJ.
+- DEBE cubrir casos de éxito y error en la capa responsable: negocio en servicios; contrato HTTP en recursos.
+- DEBE añadir tests del repositorio cuando se incorporen consultas que necesiten verificación propia.
+- DEBE apoyarse en constantes del seeder sin asumir que representan todos los datos existentes.
+- **Ampliar el seeder NO DEBE provocar fallos en los tests anteriores.**
+- Las búsquedas generales DEBEN comprobar pertenencia o exclusión, sin exigir tamaños totales ni listas completas.
+- PUEDE comprobar un único resultado al buscar por un dato único y una lista vacía para una búsqueda sin coincidencias.
+- NO DEBE depender de un orden de resultados que el contrato no establezca.
+- PUEDE crear usuarios adicionales y dejarlos en la base durante la ejecución; NO DEBE añadir limpieza por defecto.
+- Los tests de borrado DEBEN crear su propio usuario, preservando las referencias del seeder.
+- Si otro test necesita modificar un dato sembrado, DEBE restaurarlo o aislar el cambio.
+- NO DEBE depender del orden de ejecución de los tests. Cada test DEBE preparar sus datos adicionales.
+
+## Tecnología y build
+
+- DEBE usar Java 21 y Maven, conforme al objetivo del proyecto.
+- DEBE mantener Spring MVC, Spring Data JPA, PostgreSQL y H2 para los tests.
+- DEBE consultar `pom.xml` antes de modificar versiones y dependencias.
+- PUEDE usar Lombok: `@Data`, `@Builder`, `@RequiredArgsConstructor`, `@Log4j2`, `@NoArgsConstructor`, `@AllArgsConstructor`.
+- DEBERÍA verificar los cambios relevantes con `mvn verify`, que incluye integración y funcionales.
+- DEBE distinguir las comprobaciones estáticas de los tests realmente ejecutados.
+- Los cambios exclusivamente documentales PUEDEN verificarse mediante revisión de contenido y diff.
+
+## Docker y perfiles (c-d)
+
+- `application.yml` DEBE contener configuración común y los perfiles, las diferencias por entorno.
+- Direcciones y parámetros de conexión DEBEN configurarse fuera del código de negocio.
+- Los puertos, redes, URLs y healthchecks DEBEN ser coherentes entre Spring y Docker Compose.
+- NO DEBE usar `localhost` para referirse a otro contenedor; DEBE configurar una dirección accesible desde el cliente.
+- NO DEBE incorporar configuración de despliegue o permisos como parte de una tarea ajena a ese alcance.
+
+## Antipatrones prohibidos
+
+- DTOs en servicios o DTOs nuevos por cada variante menor de un recurso.
+- Entidades JPA expuestas directamente desde resources.
+- Acceso a repositorios desde resources de negocio.
+- Entidades que conozcan DTOs, services o repositorios.
+- Reglas de negocio en configuración, soporte técnico o clientes HTTP.
+- Inicialización de creación desde el DTO o durante una lectura de JPA.
+- Tests que dependan del tamaño del seeder o del orden de ejecución.
+- Refactorizaciones generales, cambios de contrato o nuevas abstracciones sin relación con la tarea solicitada.
+
+## Otros
+
+- El código nuevo DEBE usar nombres en inglés. La documentación normativa PUEDE estar en español.
+- DEBE revisar el código vigente antes de emitir recomendaciones; no basarse únicamente en esta guía.
+- Las mejoras propuestas DEBEN indicar un problema concreto, su consecuencia y la solución.
+- NO DEBE presentar hipótesis como fallos comprobados ni ampliar el ejercicio por escenarios especulativos.
+- DEBE mantener la documentación y los tests coherentes cuando cambie un contrato o decisión arquitectónica.
