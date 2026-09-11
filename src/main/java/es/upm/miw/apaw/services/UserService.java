@@ -4,6 +4,7 @@ import es.upm.miw.apaw.infrastructure.data.daos.UserRepository;
 import es.upm.miw.apaw.infrastructure.data.models.User;
 import es.upm.miw.apaw.services.criteria.UserFindCriteria;
 import es.upm.miw.apaw.services.exceptions.ClientBusinessException;
+import es.upm.miw.apaw.services.exceptions.ConflictException;
 import es.upm.miw.apaw.services.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

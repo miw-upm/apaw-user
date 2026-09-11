@@ -57,7 +57,7 @@
         <!-- OpenAPI -->
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <!-- Spring cloud -->
-        <spring-cloud.version>2025.0.1</spring-cloud.version>
+        <spring-cloud.version>2025.1.2</spring-cloud.version>
     </properties>
 
     <dependencies>

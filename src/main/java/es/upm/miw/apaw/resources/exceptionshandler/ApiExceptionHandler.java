@@ -69,7 +69,8 @@ public class ApiExceptionHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler({
-            ConflictException.class
+            ConflictException.class,
+            ClientBusinessException.class,
     })
     @ResponseBody
     public ErrorMessage conflict(Exception exception) {
