@@ -7,6 +7,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -65,13 +66,21 @@ public class ApiExceptionHandler {
     @ExceptionHandler({
             BadRequestException.class,
             org.springframework.dao.DuplicateKeyException.class,
-            org.springframework.web.HttpRequestMethodNotSupportedException.class,
             org.springframework.web.bind.MethodArgumentNotValidException.class,
             org.springframework.http.converter.HttpMessageNotReadableException.class,
             org.springframework.beans.FatalBeanException.class
     })
     @ResponseBody
     public ErrorMessage badRequest(Exception exception) {
+        return new ErrorMessage(exception);
+    }
+
+
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseBody
+    public ErrorMessage methodNotAllowed(
+            HttpRequestMethodNotSupportedException exception) {
         return new ErrorMessage(exception);
     }
 

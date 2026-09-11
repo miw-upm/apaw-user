@@ -1,5 +1,6 @@
-package es.upm.miw.apaw.services.exceptions;
+package es.upm.miw.apaw.resources.exceptionshandler;
 
+import es.upm.miw.apaw.services.exceptions.ApiException;
 import lombok.Getter;
 import lombok.ToString;
 
