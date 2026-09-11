@@ -4,14 +4,12 @@ import es.upm.miw.apaw.infrastructure.data.daos.UserRepository;
 import es.upm.miw.apaw.infrastructure.data.models.User;
 import es.upm.miw.apaw.services.criteria.UserFindCriteria;
 import es.upm.miw.apaw.services.exceptions.ClientBusinessException;
-import es.upm.miw.apaw.services.exceptions.ConflictException;
 import es.upm.miw.apaw.services.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -67,4 +65,8 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
+    public User readByMobile(String mobile) {
+        return this.userRepository.findByMobile(mobile)
+                .orElseThrow(() -> new NotFoundException("User mobile not found: " + mobile));
+    }
 }

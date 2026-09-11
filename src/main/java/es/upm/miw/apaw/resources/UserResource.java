@@ -24,9 +24,14 @@ public class UserResource {
         this.userService.create(userDto.toDomain());
     }
 
-    @GetMapping(USER_ID)
-    public UserDto read(@PathVariable UUID id) {
+    @GetMapping(Validations.ID_WITH_UUID)
+    public UserDto readById(@PathVariable UUID id) {
         return new UserDto(this.userService.read(id));
+    }
+
+    @GetMapping(Validations.ID_WITH_MOBILE)
+    public UserDto readByMobile(@PathVariable("id") String mobile) {
+        return new UserDto(this.userService.readByMobile(mobile));
     }
 
     @GetMapping(USERS)

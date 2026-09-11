@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.UUID;
 
 @Builder(toBuilder = true)

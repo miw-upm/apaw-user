@@ -5,7 +5,6 @@ import es.upm.miw.apaw.infrastructure.data.models.Role;
 import es.upm.miw.apaw.infrastructure.data.models.User;
 import es.upm.miw.apaw.services.criteria.UserFindCriteria;
 import es.upm.miw.apaw.services.exceptions.ClientBusinessException;
-import es.upm.miw.apaw.services.exceptions.ConflictException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
