@@ -62,12 +62,14 @@ jobs:
 #              --memory-swap 1024m \
 #              --network apawnet \
 #              -e SPRING_PROFILES_ACTIVE=prod \
+#              -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+#              -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
 #              ghcr.io/${{ env.REPOSITORY }}:latest
 #
 #            echo "⏳ Esperando a que se levante"
-#            for i in $(seq 1 6); do
-#              sleep 10
-#              STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${{ env.ARTIFACT }} 2>/dev/null)
+#            for i in $(seq 1 12); do
+#              sleep 15
+#              STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${{ env.ARTIFACT }} 2>/dev/null || echo "no-existe")
 #              echo "Intento $i: $STATUS"
 #              [ "$STATUS" = "healthy" ] && break
 #            done
