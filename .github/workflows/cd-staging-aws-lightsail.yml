@@ -68,7 +68,7 @@ jobs:
 
             echo "⏳ Esperando a que se levante"            
             for i in $(seq 1 6); do
-              sleep 10
+              sleep 15
               STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${{ env.ARTIFACT }} 2>/dev/null)
               echo "Intento $i: $STATUS"
               [ "$STATUS" = "healthy" ] && break
