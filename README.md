@@ -5,13 +5,14 @@
 > Este proyecto es un apoyo docente de la asignatura y un ejemplo práctico del desarrollo de una aplicación Web con
 > microservicios
 
-Es un ejemplo de un API Rest completo, basado en Spring Boot, con una arquitectura de 3-capas, y almacenamiento en
-bases de datos con JPA soportado por Hibernate y Postgres y con despliegue en AWS
+Es un ejemplo de un API Rest completo, basado en Spring Boot, con una arquitectura de 3-capas, integrado en
+microservicios con Eureka y Gateway, y almacenamiento en bases de datos con JPA soportado por Hibernate y Postgres y
+con despliegue en AWS
 
 ## Tecnologías necesarias
 
-`Java` `Maven` `GitHub` `GitHub Actions` `Sonarcloud` `Slack` `Spring-Boot` `Spring-cloude` `GitHub Packages` `OpenAPI` `JPA`
-`PostgreSQL` `Docker` `AWS`
+`Java` `Maven` `GitHub` `GitHub Actions` `Sonarcloud` `Slack` `Spring-Boot` `Spring-cloude` `GitHub Packages` `OpenAPI`
+`JPA` `PostgreSQL` `Docker` `Eureka` `Gateway` `AWS`
 
 ### :gear: Instalación del proyecto
 
@@ -43,8 +44,8 @@ docker network create apawnet
 docker network ls
 ```
 
-* Comando para crear imagen y arrancarla en contenedor mediante Docker Compose (Se utiliza el fichero *
-  *docker-compose.yml**). Localmente 
+* Comando para crear imagen y arrancarla en contenedor mediante Docker Compose (Se utiliza el fichero
+* **docker-compose.yml**). Localmente, se expone el puerto para pruebas.
 
 ```sh
 docker compose up --build -d
