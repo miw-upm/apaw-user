@@ -2,7 +2,8 @@
 
 Documento normativo para contribuir en `apaw-user`, ejercicio docente de Arquitectura y Patrones para Aplicaciones Web.
 
-El proyecto sigue una arquitectura por capas con Spring Boot y persistencia JPA. Las reglas establecen responsabilidades,
+El proyecto sigue una arquitectura por capas con Spring Boot y persistencia JPA. Las reglas establecen
+responsabilidades,
 convenciones y criterios para ampliar la aplicación. Los permisos quedan fuera del alcance del ejercicio.
 
 ## Criterios de corrección
@@ -239,6 +240,8 @@ Son umbrales de revisión. El criterio principal es responsabilidad única y leg
 
 ## Tests (e-f)
 
+Deben apoyarse en el Seeder para su simplicidad. Tests sencillos que prueban un solo aspecto.
+
 Convenciones:
 
 - `*Test`: unitarios o pruebas específicas de contexto, según corresponda.
@@ -253,7 +256,8 @@ Reglas:
 - NO DEBE introducir tests parametrizados, condicionales ni estilos alternativos al ampliar estas clases.
 - DEBE usar `@SpringBootTest` y `@ActiveProfiles("test")` cuando se levante el contexto para integración o HTTP.
 - Los tests HTTP DEBEN usar `RANDOM_PORT` y `RestTestClient`.
-- Las respuestas de usuarios DEBEN comprobarse con `expectBody(UserDto.class)` o `expectBody(UserDto[].class)` y AssertJ.
+- Las respuestas de usuarios DEBEN comprobarse con `expectBody(UserDto.class)` o `expectBody(UserDto[].class)` y
+  AssertJ.
 - DEBE cubrir casos de éxito y error en la capa responsable: negocio en servicios; contrato HTTP en recursos.
 - DEBE añadir tests del repositorio cuando se incorporen consultas que necesiten verificación propia.
 - DEBE apoyarse en constantes del seeder sin asumir que representan todos los datos existentes.
@@ -271,7 +275,8 @@ Reglas:
 - DEBE usar Java 21 y Maven, conforme al objetivo del proyecto.
 - DEBE mantener Spring MVC, Spring Data JPA, PostgreSQL y H2 para los tests.
 - DEBE consultar `pom.xml` antes de modificar versiones y dependencias.
-- PUEDE usar Lombok: `@Data`, `@Builder`, `@RequiredArgsConstructor`, `@Log4j2`, `@NoArgsConstructor`, `@AllArgsConstructor`.
+- PUEDE usar Lombok: `@Data`, `@Builder`, `@RequiredArgsConstructor`, `@Log4j2`, `@NoArgsConstructor`,
+  `@AllArgsConstructor`.
 - DEBERÍA verificar los cambios relevantes con `mvn verify`, que incluye integración y funcionales.
 - DEBE distinguir las comprobaciones estáticas de los tests realmente ejecutados.
 - Los cambios exclusivamente documentales PUEDEN verificarse mediante revisión de contenido y diff.
@@ -294,11 +299,3 @@ Reglas:
 - Inicialización de creación desde el DTO o durante una lectura de JPA.
 - Tests que dependan del tamaño del seeder o del orden de ejecución.
 - Refactorizaciones generales, cambios de contrato o nuevas abstracciones sin relación con la tarea solicitada.
-
-## Otros
-
-- El código nuevo DEBE usar nombres en inglés. La documentación normativa PUEDE estar en español.
-- DEBE revisar el código vigente antes de emitir recomendaciones; no basarse únicamente en esta guía.
-- Las mejoras propuestas DEBEN indicar un problema concreto, su consecuencia y la solución.
-- NO DEBE presentar hipótesis como fallos comprobados ni ampliar el ejercicio por escenarios especulativos.
-- DEBE mantener la documentación y los tests coherentes cuando cambie un contrato o decisión arquitectónica.

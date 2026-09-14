@@ -1,11 +1,11 @@
 package es.upm.miw.apaw.resources.dtos;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import es.upm.miw.apaw.infrastructure.data.models.Province;
 import es.upm.miw.apaw.infrastructure.data.models.Role;
 import es.upm.miw.apaw.infrastructure.data.models.User;
+import es.upm.miw.apaw.resources.Validations;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
