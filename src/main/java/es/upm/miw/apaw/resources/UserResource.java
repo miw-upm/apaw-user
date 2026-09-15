@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class UserResource {
     public static final String USERS = "/users";
     public static final String USER_ID = USERS + "/{id}";
+    public static final String BY_IDS = "/by-ids";
     private final UserService userService;
 
     @PostMapping(USERS)
@@ -39,6 +41,13 @@ public class UserResource {
         return this.userService.find(criteria)
                 .map(UserDto::new)
                 .map(UserDto::toSummary)
+                .toList();
+    }
+
+    @GetMapping(BY_IDS)
+    public List<UserDto> findByIds(@RequestParam("ids") Set<UUID> ids) {
+        return this.userService.findByIds(ids)
+                .map(UserDto::new)
                 .toList();
     }
 

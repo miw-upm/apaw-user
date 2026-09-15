@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -54,6 +55,10 @@ public class UserService {
 
     private boolean matchBillable(UserFindCriteria criteria, User user) {
         return !criteria.hasBillable() || user.isBillable() == criteria.getBillable();
+    }
+
+    public Stream<User> findByIds(Set<UUID> ids) {
+        return this.userRepository.findAllById(ids).stream();
     }
 
     public User read(UUID id) {

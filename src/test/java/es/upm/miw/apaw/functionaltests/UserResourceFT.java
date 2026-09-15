@@ -478,4 +478,98 @@ class UserResourceFT {
                 .expectBody().isEmpty();
     }
 
+    @Test
+    void testFindByIds() {
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.BY_IDS)
+                        .queryParam("ids", SeederForDev.C_0.getId(), SeederForDev.MANAGER.getId())
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .extracting(UserDto::getMobile)
+                        .containsExactlyInAnyOrder(SeederForDev.C_0.getMobile(), SeederForDev.MANAGER.getMobile()));
+    }
+
+    @Test
+    void testFindByIdsWithMissingUser() {
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.BY_IDS)
+                        .queryParam("ids", SeederForDev.C_0.getId(), UUID.randomUUID())
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .singleElement()
+                        .extracting(UserDto::getMobile)
+                        .isEqualTo(SeederForDev.C_0.getMobile()));
+    }
+
+    @Test
+    void testFindByIdsNotFound() {
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.BY_IDS)
+                        .queryParam("ids", UUID.randomUUID())
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .isEmpty());
+    }
+
+    @Test
+    void testFindByIdsEmpty() {
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.BY_IDS)
+                        .queryParam("ids", "")
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .isEmpty());
+    }
+
+    @Test
+    void testFindByIdsRepeated() {
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.BY_IDS)
+                        .queryParam("ids", SeederForDev.C_0.getId(), SeederForDev.C_0.getId())
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .singleElement()
+                        .extracting(UserDto::getMobile)
+                        .isEqualTo(SeederForDev.C_0.getMobile()));
+    }
+
+    @Test
+    void testFindByIdsMissingParameter() {
+        this.restTestClient.get()
+                .uri(UserResource.BY_IDS)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testFindByIdsInvalidUuid() {
+        this.restTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(UserResource.BY_IDS)
+                        .queryParam("ids", "invalid")
+                        .build())
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
 }

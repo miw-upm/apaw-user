@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -256,4 +257,32 @@ class UserServiceIT {
         assertThatThrownBy(() -> this.userService.read(id))
                 .isInstanceOf(NotFoundException.class);
     }
+
+    @Test
+    void testFindByIds() {
+        assertThat(this.userService.findByIds(Set.of(SeederForDev.C_0.getId(), SeederForDev.MANAGER.getId()))
+                .map(User::getId).toList())
+                .containsExactlyInAnyOrder(SeederForDev.C_0.getId(), SeederForDev.MANAGER.getId());
+    }
+
+    @Test
+    void testFindByIdsWithMissingUser() {
+        assertThat(this.userService.findByIds(Set.of(SeederForDev.C_0.getId(), UUID.randomUUID())).toList())
+                .singleElement()
+                .extracting(User::getId)
+                .isEqualTo(SeederForDev.C_0.getId());
+    }
+
+    @Test
+    void testFindByIdsNotFound() {
+        assertThat(this.userService.findByIds(Set.of(UUID.randomUUID())).toList())
+                .isEmpty();
+    }
+
+    @Test
+    void testFindByIdsEmpty() {
+        assertThat(this.userService.findByIds(Set.of()).toList())
+                .isEmpty();
+    }
+
 }
