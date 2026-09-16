@@ -152,7 +152,7 @@ class UserResourceFT {
     @Test
     void testReadById() {
         this.restTestClient.get()
-                .uri("/" + SeederForDev.C_0.getId())
+                .uri(UserResource.USERS + "/" + SeederForDev.C_0.getId())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserDto.class)
@@ -164,7 +164,7 @@ class UserResourceFT {
     @Test
     void testReadByIdNotFound() {
         this.restTestClient.get()
-                .uri("/" + UUID.randomUUID())
+                .uri(UserResource.USERS + "/" + UUID.randomUUID())
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -172,7 +172,7 @@ class UserResourceFT {
     @Test
     void testReadByMobile() {
         this.restTestClient.get()
-                .uri("/" + SeederForDev.MANAGER.getMobile())
+                .uri(UserResource.USERS + "/" + SeederForDev.MANAGER.getMobile())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserDto.class)
@@ -184,7 +184,7 @@ class UserResourceFT {
     @Test
     void testReadByShortMobile() {
         this.restTestClient.get()
-                .uri("/" + SeederForDev.ADMIN_6.getMobile())
+                .uri(UserResource.USERS + "/" + SeederForDev.ADMIN_6.getMobile())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserDto.class)
@@ -196,7 +196,7 @@ class UserResourceFT {
     @Test
     void testReadByMobileNotFound() {
         this.restTestClient.get()
-                .uri("/699999999")
+                .uri(UserResource.USERS + "/699999999")
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -482,7 +482,7 @@ class UserResourceFT {
     void testFindByIds() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(UserResource.BY_IDS)
+                        .path(UserResource.USERS + UserResource.BY_IDS)
                         .queryParam("ids", SeederForDev.C_0.getId(), SeederForDev.MANAGER.getId())
                         .build())
                 .exchange()
@@ -497,7 +497,7 @@ class UserResourceFT {
     void testFindByIdsWithMissingUser() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(UserResource.BY_IDS)
+                        .path(UserResource.USERS + UserResource.BY_IDS)
                         .queryParam("ids", SeederForDev.C_0.getId(), UUID.randomUUID())
                         .build())
                 .exchange()
@@ -513,7 +513,7 @@ class UserResourceFT {
     void testFindByIdsNotFound() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(UserResource.BY_IDS)
+                        .path(UserResource.USERS + UserResource.BY_IDS)
                         .queryParam("ids", UUID.randomUUID())
                         .build())
                 .exchange()
@@ -527,7 +527,7 @@ class UserResourceFT {
     void testFindByIdsEmpty() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(UserResource.BY_IDS)
+                        .path(UserResource.USERS + UserResource.BY_IDS)
                         .queryParam("ids", "")
                         .build())
                 .exchange()
@@ -541,7 +541,7 @@ class UserResourceFT {
     void testFindByIdsRepeated() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(UserResource.BY_IDS)
+                        .path(UserResource.USERS + UserResource.BY_IDS)
                         .queryParam("ids", SeederForDev.C_0.getId(), SeederForDev.C_0.getId())
                         .build())
                 .exchange()
@@ -556,7 +556,7 @@ class UserResourceFT {
     @Test
     void testFindByIdsMissingParameter() {
         this.restTestClient.get()
-                .uri(UserResource.BY_IDS)
+                .uri(UserResource.USERS + UserResource.BY_IDS)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -565,7 +565,7 @@ class UserResourceFT {
     void testFindByIdsInvalidUuid() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(UserResource.BY_IDS)
+                        .path(UserResource.USERS + UserResource.BY_IDS)
                         .queryParam("ids", "invalid")
                         .build())
                 .exchange()
