@@ -29,6 +29,8 @@ networks:
 # Crear la red
 #> docker network create apawnet
 
+#> docker run -d --name pgadmin --restart unless-stopped -p 8083:80 -e PGADMIN_DEFAULT_EMAIL=tu@correo.es -e PGADMIN_DEFAULT_PASSWORD=tuclave dpage/pgadmin4
+
 # CONSOLA & COMANDOS Postgres
 #> docker exec -it postgres  psql -U postgres
 #  \?   Help
