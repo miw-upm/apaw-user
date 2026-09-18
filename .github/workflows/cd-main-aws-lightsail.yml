@@ -61,6 +61,7 @@ jobs:
 #              --memory 512m \
 #              --network apawnet \
 #              -e SPRING_PROFILES_ACTIVE=prod \
+#              -e POSTGRES_URL=${{ secrets.POSTGRES_URL }} \
 #              -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
 #              -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
 #              ghcr.io/${{ env.REPOSITORY }}:latest
