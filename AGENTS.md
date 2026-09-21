@@ -172,6 +172,11 @@ Son umbrales de revisión. El criterio principal es responsabilidad única y leg
 - Los servicios PUEDEN combinar consultas con predicados del modelo que dependan de su estado.
 - DEBE mantener coherencia entre una regla del modelo y su traducción a consulta cuando se necesite filtrar en la BD.
 - NO DEBE añadir paginación o mecanismos de consulta más complejos sin un requisito o una limitación comprobada.
+- PUEDE usar `@Transactional` para acceder a relaciones `LAZY` cuando se esperen menos de 10 entidades principales.
+- Para 10 o más entidades principales, o tamaños desconocidos, DEBERÍA usar un método específico del repositorio
+  con `@EntityGraph` o `JOIN FETCH` para evitar consultas N + 1.
+- El umbral es orientativo. En operaciones frecuentes o críticas, DEBERÍA revisar el SQL generado incluso
+  con resultados pequeños.
 
 ## Entidades JPA (e-f)
 
