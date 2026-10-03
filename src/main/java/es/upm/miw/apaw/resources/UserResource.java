@@ -20,6 +20,7 @@ public class UserResource {
     public static final String USERS = "/users";
     public static final String USER_ID = "/{id}";
     public static final String BY_IDS = "/by-ids";
+    public static final String BY_EMAIL = "/by-email";
     private final UserService userService;
 
     @PostMapping()
@@ -35,6 +36,11 @@ public class UserResource {
     @GetMapping(Validations.ID_WITH_MOBILE)
     public UserDto readByMobile(@PathVariable("id") String mobile) {
         return new UserDto(this.userService.readByMobile(mobile));
+    }
+
+    @GetMapping(BY_EMAIL)
+    public UserDto readByEmail(@RequestParam("email") String email) {
+        return new UserDto(this.userService.readByEmail(email));
     }
 
     @GetMapping()

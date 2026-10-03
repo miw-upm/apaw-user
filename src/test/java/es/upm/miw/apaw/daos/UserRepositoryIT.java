@@ -35,6 +35,20 @@ class UserRepositoryIT {
     }
 
     @Test
+    void testFindByEmailFound() {
+        assertThat(this.userRepository.findByEmail(SeederForDev.C_0.getEmail()))
+                .isPresent()
+                .get()
+                .extracting(User::getId, User::getMobile)
+                .containsExactly(SeederForDev.C_0.getId(), SeederForDev.C_0.getMobile());
+    }
+
+    @Test
+    void testFindByEmailNotFound() {
+        assertThat(this.userRepository.findByEmail("unknown@example.com")).isEmpty();
+    }
+
+    @Test
     void testFindByRoleIn() {
         assertThat(this.userRepository.findByRoleIn(List.of(Role.ADMIN, Role.MANAGER)))
                 .extracting(User::getMobile)
