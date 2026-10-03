@@ -39,8 +39,10 @@ public class UserResource {
     }
 
     @GetMapping(BY_EMAIL)
-    public UserDto readByEmail(@RequestParam("email") String email) {
-        return new UserDto(this.userService.readByEmail(email));
+    public List<UserDto> findByEmail(@RequestParam("email") String email) {
+        return this.userService.findByEmail(email)
+                .map(UserDto::new)
+                .toList();
     }
 
     @GetMapping()

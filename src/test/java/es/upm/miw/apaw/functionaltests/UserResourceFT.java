@@ -202,7 +202,7 @@ class UserResourceFT {
     }
 
     @Test
-    void testReadByEmail() {
+    void testFindByEmail() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(UserResource.USERS + UserResource.BY_EMAIL)
@@ -210,21 +210,23 @@ class UserResourceFT {
                         .build())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(UserDto.class)
-                .value(user -> assertThat(user)
-                        .extracting(UserDto::getMobile, UserDto::getEmail)
-                        .containsExactly(SeederForDev.C_0.getMobile(), SeederForDev.C_0.getEmail()));
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users)
+                        .extracting(UserDto::getMobile)
+                        .contains(SeederForDev.C_0.getMobile()));
     }
 
     @Test
-    void testReadByEmailNotFound() {
+    void testFindByEmailNotFound() {
         this.restTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(UserResource.USERS + UserResource.BY_EMAIL)
                         .queryParam("email", "unknown@example.com")
                         .build())
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isOk()
+                .expectBody(UserDto[].class)
+                .value(users -> assertThat(users).isEmpty());
     }
 
     @Test

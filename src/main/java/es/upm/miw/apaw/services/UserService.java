@@ -70,9 +70,8 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
-    public User readByEmail(String email) {
-        return this.userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User email not found: " + email));
+    public Stream<User> findByEmail(String email) {
+        return this.userRepository.findByEmail(email).stream();
     }
 
     public User readByMobile(String mobile) {

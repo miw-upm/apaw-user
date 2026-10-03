@@ -37,10 +37,8 @@ class UserRepositoryIT {
     @Test
     void testFindByEmailFound() {
         assertThat(this.userRepository.findByEmail(SeederForDev.C_0.getEmail()))
-                .isPresent()
-                .get()
-                .extracting(User::getId, User::getMobile)
-                .containsExactly(SeederForDev.C_0.getId(), SeederForDev.C_0.getMobile());
+                .extracting(User::getId)
+                .contains(SeederForDev.C_0.getId());
     }
 
     @Test

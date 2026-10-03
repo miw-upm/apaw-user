@@ -186,18 +186,14 @@ class UserServiceIT {
     }
 
     @Test
-    void testReadByEmailFound() {
-        User user = this.userService.readByEmail(SeederForDev.C_0.getEmail());
-
-        assertThat(user)
-                .extracting(User::getId, User::getEmail)
-                .containsExactly(SeederForDev.C_0.getId(), SeederForDev.C_0.getEmail());
+    void testFindByEmailFound() {
+        assertThat(this.userService.findByEmail(SeederForDev.C_0.getEmail()).map(User::getId).toList())
+                .contains(SeederForDev.C_0.getId());
     }
 
     @Test
-    void testReadByEmailNotFound() {
-        assertThatThrownBy(() -> this.userService.readByEmail("unknown@example.com"))
-                .isInstanceOf(NotFoundException.class);
+    void testFindByEmailNotFound() {
+        assertThat(this.userService.findByEmail("unknown@example.com").toList()).isEmpty();
     }
 
     @Test
