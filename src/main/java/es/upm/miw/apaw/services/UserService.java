@@ -70,6 +70,11 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
+    public User readByEmail(String email) {
+        return this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User email not found: " + email));
+    }
+
     public User readByMobile(String mobile) {
         return this.userRepository.findByMobile(mobile)
                 .orElseThrow(() -> new NotFoundException("User mobile not found: " + mobile));
